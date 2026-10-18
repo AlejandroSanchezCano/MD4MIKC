@@ -17,7 +17,7 @@ import inspect
 from pathlib import Path
 
 # Custom modules
-from misc import paths
+from misc import path
 
 # Standard output handler
 def build_stdout_handler() -> logging.StreamHandler:
@@ -47,7 +47,7 @@ def build_file_handler() -> logging.FileHandler:
     '''
     main_file = inspect.stack()[-1].filename
     main_file = Path(main_file)
-    logs_file = paths.PROJECT / 'log' / main_file.relative_to(paths.PROJECT)
+    logs_file = path.PROJECT / 'log' / main_file.relative_to(path.PROJECT)
     logs_file.parent.mkdir(parents=True, exist_ok=True)
     file_handler = logging.FileHandler(
         logs_file.with_suffix('.log'),
