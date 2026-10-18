@@ -1,3 +1,6 @@
 conda create -n md4mikc python=3.12 -y
 conda activate md4mikc
 pip install -e .
+pip install MDAnalysis                  # 2.10.0
+pip install tqdm                        # 4.70.1
+pip install seaborn                     # 0.13.2
