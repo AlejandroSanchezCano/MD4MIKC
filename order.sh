@@ -1,2 +1,2 @@
 # Analyze
-sh tmux.sh -n prepare -f analysis/prepare.py
+sh analysis/prepare.py
