@@ -4,3 +4,4 @@ pip install -e .
 pip install MDAnalysis                  # 2.10.0
 pip install tqdm                        # 4.70.1
 pip install seaborn                     # 0.13.2
+pip3 install -U scikit-learn            # 1.9.1

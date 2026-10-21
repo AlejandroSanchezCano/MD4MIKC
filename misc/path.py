@@ -15,5 +15,8 @@ from pathlib import Path
 CHONKY = Path('/gpfs/work5/0/prjs1460/')
 PROJECT = CHONKY / 'MD4MIKC'
 
+# Data directories
+DATA = PROJECT / 'data'
+
 # Simulation directories
 SIMULATION = PROJECT / 'simulation'

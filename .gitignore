@@ -1,5 +1,6 @@
 # Custom
 log/
+data/
 simulation/
 *.out
 
