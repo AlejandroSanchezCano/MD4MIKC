@@ -1,4 +1,10 @@
 #!/bin/bash
+# Preparation of the simulation data for further analysis.
+# - Remove solvent
+# - Remove PBC artifacts
+# - Center the system
+# - Align the system to the backbone
+# Time: 1 h
 
 repetitions=(4 6)
 systems=(WT ST58AN)
@@ -20,6 +26,10 @@ for idx in "${!systems[@]}"; do
             -s "$path/$system/$repetition/$system.pdb" \
             -f "$path/$system/$repetition/$system.pdb" \
             -o "$path/$system/$repetition/top.pdb"
+        
+        # Fix topology. The command to remove solvents transforms the chlorine 
+        # atoms from "Cl" to "l", which is not recognized by MDAnalysis.
+        sed -i 's/ l$/CL/' "$path/$system/$repetition/top.pdb"
 
         # Keep system whole
         printf "System\n" | gmx trjconv \
