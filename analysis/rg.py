@@ -2,7 +2,7 @@
 ===============================================================================
 Title:      Rg
 Outline:    Calculate the radius of gyration of the protein in the MD 
-simulations.
+            simulations.
 Author:     Alejandro Sánchez Cano
 Date:       21/10/2026
 Time:       13 min for 10 simulations
