@@ -60,6 +60,22 @@ for idx in "${!systems[@]}"; do
             -f "$path/$system/$repetition/centered.xtc" \
             -o "$path/$system/$repetition/aligned.xtc" \
             -fit rot+trans
+       
+       # Simulation start
+       printf "System\n" | gmx trjconv \
+           -s "$path/$system/$repetition/top.pdb" \
+           -f "$path/$system/$repetition/aligned.xtc" \
+           -o "$path/$system/$repetition/start.pdb" \
+           -dump 0
+      
+        # Simulation end
+        printf "System\n" | gmx trjconv \
+            -s "$path/$system/$repetition/top.pdb" \
+            -f "$path/$system/$repetition/aligned.xtc" \
+            -o "$path/$system/$repetition/end.pdb" \
+            -dump 0 \
+            -b 2 \
+            -tu us
 
         # Remove intermediate files
         rm "$path/$system/$repetition/whole.xtc"
