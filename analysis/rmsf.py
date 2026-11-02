@@ -27,7 +27,7 @@ for reps, system in zip(repetitions, systems):
     for repetition in tqdm(range(reps), desc=f'Processing {system}'):
 
         # Reconstruct paths
-        in_dir = path.SIMULATION / 'FUL-SOC1' / system / str(repetition)
+        in_dir = path.SIMULATION / 'FUL-AG' / system / str(repetition)
         xtc = in_dir / 'aligned.xtc'
         pdb = in_dir / 'top.pdb'
         

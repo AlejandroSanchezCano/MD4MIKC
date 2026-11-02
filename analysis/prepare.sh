@@ -8,7 +8,7 @@
 
 repetitions=(4 6)
 systems=(WT ST58AN)
-path="/home/asanchez/chonky/MD4MIKC/simulation/FUL-SOC1"
+path="/home/asanchez/chonky/MD4MIKC/simulation/FUL-AG"
 
 for idx in "${!systems[@]}"; do
     reps=${repetitions[$idx]}
