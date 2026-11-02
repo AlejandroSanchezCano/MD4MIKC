@@ -17,6 +17,7 @@ PROJECT = CHONKY / 'MD4MIKC'
 
 # Data directories
 DATA = PROJECT / 'data'
+PCA = DATA / 'pca'
 
 # Simulation directories
 SIMULATION = PROJECT / 'simulation'

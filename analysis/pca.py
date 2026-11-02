@@ -23,6 +23,7 @@ logger.info('Imported modules successfully.')
 
 # Variables
 EVERY_NTH = 1000
+PC = 2
 
 # Collector
 data = {
@@ -39,7 +40,7 @@ for reps, system in zip(repetitions, systems):
     for repetition in tqdm(range(reps), desc=f'Processing {system}'):
 
         # Reconstruct paths
-        in_dir = path.SIMULATION / 'FUL-SOC1' / system / str(repetition)
+        in_dir = path.SIMULATION / 'FUL-AG' / system / str(repetition)
         xtc = in_dir / 'aligned.xtc'
         pdb = in_dir / 'top.pdb'
         
@@ -58,12 +59,15 @@ for reps, system in zip(repetitions, systems):
             align.alignto(
                 universe,
                 reference,
-                select='protein and name CA',
+                select=(
+                    '(segid A and resid 75:145 and name CA) or '
+                    '(segid B and resid 70:135 and name CA)'
+                )
             )
 
             # Collect coordinates
-            atoms = universe.select_atoms('protein and backbone')
-            coordinates = atoms.positions.flatten()
+            backbone = universe.select_atoms('protein and backbone')
+            coordinates = backbone.positions.flatten()
             data['Coordinates'].append(coordinates)
             data['Frame'].append(frame.frame)
             data['System'].append(system)
@@ -72,49 +76,37 @@ for reps, system in zip(repetitions, systems):
 # PCA
 logger.info('Performing PCA...')
 X = np.stack(data['Coordinates'])
-pca = PCA(n_components=2)
-Xpca = pca.fit_transform(X)
+pca = PCA(n_components=PC)
+X_pca = pca.fit_transform(X)
 logger.info(f'Explained variance PC1: {pca.explained_variance_ratio_[0]*100:.2f}%')
 logger.info(f'Explained variance PC2: {pca.explained_variance_ratio_[1]*100:.2f}%')
+np.save(path.PCA / 'explained_variance.npy', pca.explained_variance_ratio_)
+
+# Save reference structure
+reference = pca.mean_.reshape(-1, 3)
+backbone.positions = reference
+backbone.write(path.PCA / 'reference.pdb')
+# Principal component motion
+for idx in range(PC):
+    # Get eigenvector
+    eigenvector = pca.components_[idx].reshape(-1, 3)
+    logger.info(f'PC{idx+1} eigenvector shape: {eigenvector.shape}')
+    # Sample along the principal component
+    alphas = np.linspace(
+        np.percentile(X_pca[:, idx], 5),
+        np.percentile(X_pca[:, idx], 95),
+        100
+    )
+    # Save motions
+    out_path = path.PCA / f'PC{idx+1}.xtc'
+    with mda.Writer(str(out_path), n_atoms=backbone.n_atoms) as W:
+        for alpha in tqdm(alphas, desc=f'Generating PC{idx+1} motion'):
+            backbone.positions = reference + alpha * eigenvector
+            W.write(backbone)
 
 # Save PCA results
-df = pd.DataFrame(Xpca, columns=['PC1', 'PC2'])
+df = pd.DataFrame(X_pca, columns=['PC1', 'PC2'])
 df['System'] = data['System']
 df['Repetition'] = data['Repetition']
 df['Frame'] = data['Frame']
-df.to_csv(path.DATA / 'pca.csv', index=False)
-
-
-
-
-# Plot
-#fig, ax = plt.subplots(figsize=(8, 6))
-#for name in set(labels):
-#    mask = labels == name
-#    if name.startswith('WT'):
-#        ax.scatter(
-#            X_pca[mask, 0],
-#            X_pca[mask, 1],
-#            label=name,
-#            alpha=0.7,
-#            marker='o',
-#        )
-#    elif name.startswith('ST58AN'):
-#        ax.scatter(
-#            X_pca[mask, 0],
-#            X_pca[mask, 1],
-#            label=name,
-#            alpha=0.7,
-#            marker='s',
-#        )
-#
-#ax.set_xlabel(
-#    f"PC1 ({pca.explained_variance_ratio_[0]*100:.1f}%)"
-#)
-#ax.set_ylabel(
-#    f"PC2 ({pca.explained_variance_ratio_[1]*100:.1f}%)"
-#)
-#
-#plt.title('PCA of Protein Dynamics')
-#plt.legend()
-#plt.savefig('a.png')
+df.to_csv(path.PCA / 'pca.csv', index=False)
